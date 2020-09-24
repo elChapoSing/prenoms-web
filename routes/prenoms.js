@@ -11,12 +11,15 @@ router.get('/crossfilter', (req, res, next) => {
     db.get("all_names").then((body) => {
         let all_names = body.names;
         console.log(body["_id"]);
-        db_pg.pool.query('select * from public.prenoms_dep limit $1',[maxLineNumber]).then((ret) => {
-            console.log(ret.rows.slice(0,1));
-            res.send(ret.rows);
-        }).catch((err) => {
-            res.status(500).send(err);
-        })
+        let cursor = db_pg.pool.query(new db_pg.Cursor('select * from public.prenoms_dep limit $1', [maxLineNumber]))
+        let ret = [];
+        cursor.read(1000, (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            ret.push(rows);
+        });
+        res.send(ret);
     }).catch((err) => {
         res.status(500).send(err);
     })
