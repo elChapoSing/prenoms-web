@@ -12,7 +12,7 @@ router.get('/crossfilter', (req, res, next) => {
         let all_names = body.names;
         console.log(body["_id"]);
         db_pg.pool.query('select * from public.prenoms_dep limit $1',[maxLineNumber]).then((ret) => {
-            console.log(ret.rows.slice(0,10));
+            console.log(ret.rows.slice(0,1));
             res.send(ret.rows);
         }).catch((err) => {
             res.status(500).send(err);
