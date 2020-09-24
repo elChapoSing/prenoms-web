@@ -15,7 +15,6 @@ router.get('/crossfilter', (req, res, next) => {
         }).catch((err) => {
             res.status(500).send(err);
         })
-        res.send(body);
     }).catch((err) => {
         res.status(500).send(err);
     })
