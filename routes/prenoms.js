@@ -9,9 +9,16 @@ router.get('/crossfilter', (req, res, next) => {
     let nano = db_couch.nano;
     let db = nano.use("prenoms");
     db.get("all_names").then((body) => {
-        console.log(body);
+        let all_names = body.names;
+        db_pg.pool.query('select * from public.prenoms_dep').then((ret) => {
+            console.log(ret);
+        }).catch((err) => {
+            res.status(500).send(err);
+        })
+        res.send(body);
+    }).catch((err) => {
+        res.status(500).send(err);
     })
-
 });
 
 
