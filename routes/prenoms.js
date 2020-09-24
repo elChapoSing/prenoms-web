@@ -5,13 +5,13 @@ const router = new Router();
 module.exports = router;
 
 router.get('/crossfilter', (req, res, next) => {
-
+    let line_num = req.query.params.maxLineNumber;
     let nano = db_couch.nano;
     let db = nano.use("prenoms");
     db.get("all_names").then((body) => {
         let all_names = body.names;
         console.log(body["_id"]);
-        db_pg.pool.query('select * from public.prenoms_dep limit 10').then((ret) => {
+        db_pg.pool.query('select * from public.prenoms_dep limit $1',[line_num]).then((ret) => {
             console.log(ret.rows.slice(0,10));
             res.send(ret.rows);
         }).catch((err) => {
