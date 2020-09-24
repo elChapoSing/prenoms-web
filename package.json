@@ -16,6 +16,7 @@
     "nano": "^8.2.2",
     "pg": "^8.3.3",
     "pg-cursor": "^2.3.3",
+    "pg-query-stream": "^3.2.3",
     "reductio": "^1.0.0",
     "serve-favicon": "^2.5.0",
     "yargs": "^16.0.3"

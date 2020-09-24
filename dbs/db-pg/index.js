@@ -2,6 +2,8 @@ const fs = require("fs");
 
 const {Pool} = require('pg');
 const Cursor = require('pg-cursor');
+const QueryStream = require('pg-query-stream');
+
 const pool = new Pool({
     host: "localhost",
     port: 5432,
@@ -65,4 +67,5 @@ module.exports = {
     },
     pool: pool,
     Cursor: Cursor,
+    QueryStream: QueryStream,
 };
