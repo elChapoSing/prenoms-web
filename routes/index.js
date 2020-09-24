@@ -1,5 +1,5 @@
-// const misc = require('./miscellaneous');
+const prenoms = require('./prenoms');
 
 module.exports = (app) => {
-    // app.use('/misc', misc);
+    app.use('/prenoms', prenoms);
 };
