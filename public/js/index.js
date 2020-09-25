@@ -11,7 +11,7 @@ let loadData = (mode) => {
     return $.ajax(url, {})
         .then((res) => {
             if (mode === "data") {
-                res = Papa.parse(res);
+                res = Papa.parse(res,{header:true,fastMode: true});
             }
             return res;
         })
