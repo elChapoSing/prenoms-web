@@ -1,4 +1,5 @@
 'use strict'
+var through = require('through');
 exports.stringify = function (op, sep, cl, indent) {
   indent = indent || 0
   if (op === false){
