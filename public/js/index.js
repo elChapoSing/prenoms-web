@@ -44,7 +44,7 @@ let go = () => {
     console.log("go");
     let spinner = new Spinner({}).spin(document.getElementById("spinner"));
     Promise.all([loadData("names"), loadData("data")]).then((values) => {
-        console.log(values);
+        console.log("ok");
         spinner.stop();
     }).catch((err) => {
         console.log(err);
