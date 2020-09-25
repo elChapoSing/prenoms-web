@@ -19,7 +19,7 @@ router.get('/crossfilter', (req, res, next) => {
             const query = new db_pg.QueryStream('select * from public.prenoms_dep limit $1', [maxLineNumber]);
             const stream = client.query(query);
             stream.on('end', done);
-            stream.pipe(JSONStream.stringify()).pipe(res);
+            stream.pipe(JSONStream.stringify( '[\n', '\n,\n', '\n]\n', 0, all_names)).pipe(res);
         });
     }).catch((err) => {
         res.status(500).send(err);
