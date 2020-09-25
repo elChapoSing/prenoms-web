@@ -25,6 +25,7 @@ exports.stringify = function (op, sep, cl) {
                 for (let val of Object.keys(data)) {
                     headers = headers + val.toString() + ",";
                 }
+                headers = headers.slice(0,-1);
                 stream.queue(op + headers + sep + strTemp)
             } else stream.queue(sep + strTemp)
         },
