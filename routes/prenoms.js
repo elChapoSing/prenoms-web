@@ -1,7 +1,7 @@
 const Router = require('express-promise-router')
 const db_pg = require('../dbs/db-pg');
 const db_couch = require('../dbs/db-couch');
-const JSONStream = require('JSONStream');
+const JSONStream = require('../dbs/db-pg/JSONStream');
 const router = new Router();
 module.exports = router;
 
@@ -19,19 +19,8 @@ router.get('/crossfilter', (req, res, next) => {
             const query = new db_pg.QueryStream('select * from public.prenoms_dep limit $1', [maxLineNumber]);
             const stream = client.query(query);
             stream.on('end', done);
-            // stream.pipe(JSONStream.stringify(open='[\n', sep=',', close='\n]\n')).pipe(res);
             stream.pipe(JSONStream.stringify()).pipe(res);
         });
-
-        // let cursor = db_pg.pool.query(new db_pg.Cursor('select * from public.prenoms_dep limit $1', [maxLineNumber]));
-        // let ret = [];
-        // cursor.read(1000, (err, rows) => {
-        //     if (err) {
-        //         throw err;
-        //     }
-        //     ret.push(rows);
-        // });
-        // res.send(ret);
     }).catch((err) => {
         res.status(500).send(err);
     })
