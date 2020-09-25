@@ -7,18 +7,20 @@ let initializeCrossfilter = () => {
 
 }
 let loadData = (mode) => {
-    let url = "/prenoms/crossfilter/"+mode;
+    let url = "/prenoms/crossfilter/" + mode;
     return $.ajax(url, {})
+        .then((res) => {
+            return res;
+        })
+        .catch((err) => {
+            return err;
+        });
 };
 
 let go = () => {
     console.log("go");
-    let spinner = new Spinner({
-        top: "50%",
-        left: "50%",
-        position: "floating"
-    }).spin(document.getElementById("spinner"));
-    Promise.all([loadData("names"),loadData("data")]).then((values) => {
+    let spinner = new Spinner({}).spin(document.getElementById("spinner"));
+    Promise.all([loadData("names"), loadData("data")]).then((values) => {
         console.log(values);
         spinner.stop();
     }).catch((err) => {
