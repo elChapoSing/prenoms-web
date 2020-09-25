@@ -1,0 +1,62 @@
+body {
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 25fr;
+    height:100vh;
+}
+
+#parameters {
+    display: grid;
+    grid-template-rows: minmax(30px);
+    grid-template-columns: repeat(10, 1fr);
+    grid-gap: 0.2rem;
+    grid-auto-flow: column;
+    padding-bottom: 1em;
+    padding-left: 0em;
+    border:2px solid #222222;
+}
+
+#results {
+    display: grid;
+    grid-row-gap: 1.15em;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(3, 1fr) repeat(2, 2fr);
+    grid-template-areas: "percentile trend syllabe nombre nombre nombre"
+                         "percentile trend sexe    nombre nombre nombre"
+                         "tableau tableau       cloud cloud     carte  carte "
+                         "tableau tableau       cloud cloud     carte  carte "
+                         "tableau tableau       cloud cloud     carte  carte ";
+    /*height: 96vh;*/
+}
+#parameters > div {
+    border:1px solid #222222;
+}
+
+#results > div {
+    border:1px solid #222222;
+}
+
+#percentile {
+    grid-area: percentile;
+}
+#trend {
+    grid-area: trend;
+}
+#syllabe {
+    grid-area: syllabe;
+}
+#sexe {
+    grid-area: sexe;
+}
+#nombre {
+    grid-area: nombre;
+}
+#carte {
+    grid-area: carte;
+}
+#cloud {
+    grid-area: cloud;
+}
+#tableau {
+    grid-area: tableau;
+}
