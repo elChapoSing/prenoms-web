@@ -20,6 +20,7 @@ exports.stringify = function (op, sep, cl, indent) {
     , first = true
     , anyData = false
   stream = through(function (data) {
+    console.log("Data :");
     console.log(data);
     anyData = true
     try {
