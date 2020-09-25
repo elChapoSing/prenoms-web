@@ -25,7 +25,7 @@ let loadData = (mode) => {
         thePromise = new Promise((resolve, reject) => {
             console.time("load data file")
             let res = []
-            Papa.parse("/public/data/data.csv", {
+            Papa.parse("/prenoms/crossfilter/data", {
                 download: true,
                 header: true,
                 fastMode: true,
