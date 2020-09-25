@@ -5,13 +5,17 @@
 <head>
 
     <title>PRENOMS</title>
-    <!--    CSS-->
+    <!--CSS-->
     <LINK href="/node_modules/dc/dist/style/dc.min.css" rel="stylesheet" type="text/css">
     <LINK href="/public/css/jquery-ui.min.css" rel="stylesheet" type="text/css">
     <LINK href="/public/css/main.css" rel="stylesheet" type="text/css">
 
-    <!--DC RELATED STUFF-->
+
+    <!--JAVASCRIPT-->
+    <!--JQUERY RELATED STUFF-->
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/public/js/jquery-ui.min.js"></script>
+    <!--DC RELATED STUFF-->
     <script src="/node_modules/d3/dist/d3.min.js"></script>
     <script src="/node_modules/crossfilter2/crossfilter.min.js"></script>
     <script src="/node_modules/reductio/reductio.min.js"></script>
@@ -20,13 +24,18 @@
     <script src="/node_modules/d3-time/dist/d3-time.min.js"></script>
     <script src="/node_modules/d3-time-format/dist/d3-time-format.min.js"></script>
     <script src="/node_modules/d3-tip/dist/index.js"></script>
-
+    <!--PLUGINS-->
+    <script src="/node_modules/spin/spin.js" type="text/javascript"></script>
     <!--PERSONAL CODE-->
     <script src="/public/js/index.js" type="text/javascript"></script>
 
 </head>
 <body>
 <div id="parameters">
+    <div>
+        <button id="btn-go">Go</button>
+    </div>
+    <div id="spinner"></div>
 </div>
 <div id="results">
     <div id="percentile">percentile</div>
