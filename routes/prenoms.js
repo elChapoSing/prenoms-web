@@ -20,7 +20,7 @@ router.get('/crossfilter', (req, res, next) => {
             const query = new db_pg.QueryStream('select * from public.prenoms_dep limit $1', [maxLineNumber]);
             const stream = client.query(query);
             stream.on('end', done);
-            stream.pipe(stringify({delimiter:","}).write()).pipe(res);
+            stream.pipe(stringify({delimiter:","}).write).pipe(res);
         });
 
         // let cursor = db_pg.pool.query(new db_pg.Cursor('select * from public.prenoms_dep limit $1', [maxLineNumber]));
