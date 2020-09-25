@@ -7,17 +7,20 @@ let initializeCrossfilter = () => {
 
 }
 let loadData = (mode) => {
-    let thePromise;
+    let thePromise
+    console.time("the promise "+mode);
     if (mode === "names") {
         let url = "/prenoms/crossfilter/names";
         thePromise = $.ajax(url, {});
     } else if (mode === "data") {
         thePromise = new Promise((resolve, reject) => {
+            console.time("load data file")
             Papa.parse("/public/data/data.csv", {
                 download: true,
                 header: true,
                 fastMode: true,
                 complete: (res) => {
+                    console.timeEnd("load data file")
                     resolve(res.data);
                 },
             });
@@ -25,6 +28,7 @@ let loadData = (mode) => {
     }
     return thePromise
         .then((res) => {
+            console.timeEnd("the promise "+mode);
             return res;
         })
         .catch((err) => {
