@@ -22,9 +22,6 @@ exports.stringify = function (op, sep, cl, indent, all_names) {
   stream = through(function (data) {
     anyData = true
     try {
-      if (data.prenom in all_names) {
-        data["data"] = all_names[data.prenom];
-      }
       var json = JSON.stringify(data, null, indent)
     } catch (err) {
       return stream.emit('error', err)
