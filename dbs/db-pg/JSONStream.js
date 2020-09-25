@@ -1,6 +1,6 @@
 'use strict'
 var through = require('through');
-exports.stringify = function (op, sep, cl, indent) {
+exports.stringify = function (op, sep, cl, indent, all_names) {
   indent = indent || 0
   if (op === false){
     op = ''
@@ -20,10 +20,11 @@ exports.stringify = function (op, sep, cl, indent) {
     , first = true
     , anyData = false
   stream = through(function (data) {
-    console.log("Data :");
-    console.log(data);
     anyData = true
     try {
+      if (data.prenom in all_names) {
+        data["data"] = all_names[data.prenom];
+      }
       var json = JSON.stringify(data, null, indent)
     } catch (err) {
       return stream.emit('error', err)
