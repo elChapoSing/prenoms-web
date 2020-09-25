@@ -13,7 +13,7 @@ exports.stringify = function (op, sep, cl) {
             try {
                 var strTemp = "";
                 for (let val of Object.values(data)) {
-                    strTemp = val.toString() + ",";
+                    strTemp = strTemp + val.toString() + ",";
                 }
                 strTemp = strTemp.slice(0, -1);
             } catch (err) {
@@ -23,7 +23,7 @@ exports.stringify = function (op, sep, cl) {
                 first = false;
                 var headers = "";
                 for (let val of Object.keys(data)) {
-                    headers = val.toString() + ",";
+                    headers = headers + val.toString() + ",";
                 }
                 stream.queue(op + headers + sep + strTemp)
             } else stream.queue(sep + strTemp)
