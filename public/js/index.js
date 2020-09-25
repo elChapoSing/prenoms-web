@@ -3,12 +3,21 @@ let xData = null;
 // ################################################
 // ############# INITIALIZATION ###################
 // ################################################
-let initializeCrossfilter = () => {
+let formatDashboard = () => {
+
+};
+
+let showDashboard = () => {
+
+};
+
+let initializeCrossfilter = (mode, data) => {
 
 }
+
 let loadData = (mode) => {
     let thePromise
-    console.time("the promise "+mode);
+    console.time("the promise " + mode);
     if (mode === "names") {
         let url = "/prenoms/crossfilter/names";
         thePromise = $.ajax(url, {});
@@ -32,7 +41,7 @@ let loadData = (mode) => {
     }
     return thePromise
         .then((res) => {
-            console.timeEnd("the promise "+mode);
+            console.timeEnd("the promise " + mode);
             return res;
         })
         .catch((err) => {
@@ -44,7 +53,11 @@ let go = () => {
     console.log("go");
     let spinner = new Spinner({}).spin(document.getElementById("spinner"));
     Promise.all([loadData("names"), loadData("data")]).then((values) => {
-        console.log("ok");
+        console.log("data loaded");
+        initializeCrossfilter("names", values[0]);
+        initializeCrossfilter("data", values[1]);
+        showDashboard();
+        formatDashboard();
         spinner.stop();
     }).catch((err) => {
         console.log(err);
