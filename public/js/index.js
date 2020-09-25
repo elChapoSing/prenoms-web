@@ -7,12 +7,24 @@ let initializeCrossfilter = () => {
 
 }
 let loadData = (mode) => {
-    let url = "/prenoms/crossfilter/" + mode;
-    return $.ajax(url, {})
+    let thePromise;
+    if (mode === "names") {
+        let url = "/prenoms/crossfilter/names";
+        thePromise = $.ajax(url, {});
+    } else if (mode === "data") {
+        thePromise = new Promise((resolve, reject) => {
+            Papa.parse("/public/data/data.csv", {
+                download: true,
+                header: true,
+                fastMode: true,
+                complete: (res) => {
+                    resolve(res.data);
+                },
+            });
+        });
+    }
+    return thePromise
         .then((res) => {
-            if (mode === "data") {
-                res = Papa.parse(res,{header:true,fastMode: true});
-            }
             return res;
         })
         .catch((err) => {
