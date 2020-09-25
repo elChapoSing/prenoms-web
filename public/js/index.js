@@ -10,6 +10,9 @@ let loadData = (mode) => {
     let url = "/prenoms/crossfilter/" + mode;
     return $.ajax(url, {})
         .then((res) => {
+            if (mode === "data") {
+                res = Papa.parse(res);
+            }
             return res;
         })
         .catch((err) => {
