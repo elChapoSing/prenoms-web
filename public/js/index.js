@@ -15,13 +15,17 @@ let loadData = (mode) => {
     } else if (mode === "data") {
         thePromise = new Promise((resolve, reject) => {
             console.time("load data file")
+            let res = []
             Papa.parse("/public/data/data.csv", {
                 download: true,
                 header: true,
                 fastMode: true,
-                complete: (res) => {
+                step: (row) => {
+                    res.push(row.data);
+                },
+                complete: () => {
                     console.timeEnd("load data file")
-                    resolve(res.data);
+                    resolve(res);
                 },
             });
         });
