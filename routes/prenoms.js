@@ -10,6 +10,7 @@ router.get('/crossfilter/data', (req, res, next) => {
         if (err) {
             throw err;
         }
+        res.set('Content-Type','text/csv');
         const query = new db_pg.QueryStream('select * from public.prenoms_dep order by annee, prenom, departement, sexe;');
         const stream = client.query(query);
         stream.on('end', done);
