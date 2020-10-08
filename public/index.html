@@ -26,6 +26,7 @@
     <script src="/node_modules/d3-time-format/dist/d3-time-format.min.js"></script>
     <script src="/node_modules/d3-tip/dist/index.js"></script>
     <!--PLUGINS-->
+    <script src="/public/js/fontawesome.js"></script>
     <script src="/node_modules/spin/dist/spin.min.js" type="text/javascript"></script>
     <script src="/node_modules/papaparse/papaparse.min.js" type="text/javascript"></script>
     <!--PERSONAL CODE-->
@@ -34,17 +35,43 @@
 </head>
 <body>
 <div id="parameters">
-    <div>
-        <button id="btn-go">Go</button>
-    </div>
     <div id="spinner"></div>
 </div>
 <div id="results">
-    <div id="percentile">percentile</div>
-    <div id="trend">trend</div>
-    <div id="syllabe">syllabe</div>
-    <div id="sexe">sexe</div>
-    <div id="nombre">nombre</div>
+    <div id="checkboxes" style="display:none;">
+        <input type="checkbox" id="toggle-male" onclick="toggleGender(this)">
+        <input type="checkbox" id="toggle-female" onclick="toggleGender(this)">
+        <input type="checkbox" id="toggle-both" onclick="toggleGender(this)">
+        <input type="checkbox" id="toggle-syllabe-1" onclick="toggleSyllabes(this)">
+        <input type="checkbox" id="toggle-syllabe-2" onclick="toggleSyllabes(this)">
+        <input type="checkbox" id="toggle-syllabe-3" onclick="toggleSyllabes(this)">
+        <input type="checkbox" id="toggle-syllabe-4" onclick="toggleSyllabes(this)">
+        <input type="checkbox" id="toggle-syllabe-5" onclick="toggleSyllabes(this)">
+    </div>
+    <div id="percentile"></div>
+    <div id="trend"></div>
+    <div id="syllabe">
+        <div id="syllabe-1" class="syllabe-container"><label for="toggle-syllabe-1">1</label></div>
+        <div id="syllabe-2" class="syllabe-container"><label for="toggle-syllabe-2">2</label></div>
+        <div id="syllabe-3" class="syllabe-container"><label for="toggle-syllabe-3">3</label></div>
+        <div id="syllabe-4" class="syllabe-container"><label for="toggle-syllabe-4">4</label></div>
+        <div id="syllabe-5" class="syllabe-container"><label for="toggle-syllabe-5">5</label></div>
+    </div>
+    <div id="sexe">
+        <div id="sexe-male" class="gender-container"><label for="toggle-male"><i class="fas fa-mars fa-10x"></i></label></div>
+        <div id="sexe-female" class="gender-container"><label for="toggle-female"><i class="fas fa-venus fa-10x"></i></label></div>
+        <div id="sexe-both" class="gender-container"><label for="toggle-both"><i class="fas fa-venus-mars fa-10x"></i></label></div>
+    </div>
+    <div id="nombre-container">
+        <div id="nombre"></div>
+        <div id="nombre-legend"></div>
+    </div>
+    <div id="count">
+        <div id="count-number">count</div>
+        <div style="margin:auto;" id="count-button">
+            <button id="btn-go">Go</button>
+        </div>
+    </div>
     <div id="carte">carte</div>
     <div id="cloud">cloud</div>
     <div id="tableau">tableau</div>
