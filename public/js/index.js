@@ -165,48 +165,54 @@ let go = () => {
     spinner.stop();
 };
 
-let updateCount = () => {
-    $("#count-number").html("Loading...");
-    let hasFilter = false;
+let getNamePopulation = (isCount) => {
+    $("#count-number").html("");
+    let spinner = new Spinner({}).spin(document.getElementById("count-number"));
     let percentileFilters = []
     let trendFilters = []
     let syllableFilters = []
     let genderFilters = []
+    let decadeFilters = []
+    // $("#percentile > div.grid-selected").each(function () {
+    //     let theSplit = this.id.split("!");
+    //     if (!["percentile", "decade"].includes(theSplit[1])) {
+    //         percentileFilters.push({type: "percentiles", decade: theSplit[2], number: theSplit[1]});
+    //     }
+    // });
     $("#percentile > div.grid-selected").each(function () {
-        let theSplit = this.id.split("!");
-        if (!["percentile", "decade"].includes(theSplit[1])) {
-            percentileFilters.push([theSplit[1], theSplit[2]]);
-        }
+        percentileFilters.push({type: "percentiles", value: this.id.split("-")[1]});
     });
     $("#trend > div.grid-selected").each(function () {
-        let theSplit = this.id.split("!");
-        if (!["trend", "decade"].includes(theSplit[1])) {
-            trendFilters.push([theSplit[1], theSplit[2]]);
-        }
+        trendFilters.push({type: "trends", value: this.id.split("-")[1]});
     });
     $("#syllabe > div.syllabe-container-selected").each(function () {
-        syllableFilters.push(this.id.split("-")[1]);
+        syllableFilters.push({type: "syllabe", value: this.id.split("-")[1]});
     });
-    $("#sexe > div.gender-container-selected").each(function () {
-        genderFilters.push(this.id.split("-")[1]);
+    $("#gender > div.gender-container-selected").each(function () {
+        genderFilters.push({type: "gender", value: this.id.split("-")[1]});
+    });
+    $("#decade > div.decade-container-selected").each(function () {
+        decadeFilters.push({type: "decade", value: this.id.split("-")[1]});
     });
     //get the count
     let url = "/prenoms/filters"
     let filtersData = {
-        isCount: true,
+        isCount: isCount,
     };
-    let filters = [...percentileFilters,...trendFilters,...syllableFilters,...genderFilters];
-    if (filters.length>0) {
+    let filters = [...percentileFilters, ...trendFilters, ...syllableFilters, ...genderFilters, ...decadeFilters];
+    if (filters.length > 0) {
         filtersData.filters = filters;
     }
     $.ajax(url, {
         data: JSON.stringify(filtersData),
-        headers: {"Content-Type":"application/json"},
+        headers: {"Content-Type": "application/json"},
         method: "POST",
     }).then((body) => {
+        spinner.stop();
         $("#count-number").html(body.count);
     }).catch((err) => {
         console.log(err);
+        spinner.stop();
         $("#count-number").html("Blah!");
     })
 }
@@ -283,20 +289,15 @@ let toggleSelect = (checkbox, perimName, isRow, isCol) => {
             transfo($("#" + $.escapeSelector(perimName + "!decade!" + decade)));
         }
     }
-    updateCount();
+    getNamePopulation(true);
 };
 
-let toggleGender = (checkbox) => {
-    let gender = checkbox.id.split("-")[1];
-    transfoGenerator(checkbox.checked, "gender-container", "gender-container-selected")($("#sexe-" + $.escapeSelector(gender)));
-    updateCount();
-};
-
-let toggleSyllabes = (checkbox) => {
-    let number = checkbox.id.split("-")[2];
-    transfoGenerator(checkbox.checked, "syllabe-container", "syllabe-container-selected")($("#syllabe-" + $.escapeSelector(number)));
-    updateCount();
-};
+let toggleGeneric = (checkbox) => {
+    let theName = checkbox.id.split("-")[1];
+    let theThing = checkbox.id.split("-")[2];
+    transfoGenerator(checkbox.checked, theName + "-container", theName + "-container-selected")($("#" + theName + "-" + $.escapeSelector(theThing)));
+    getNamePopulation(true);
+}
 
 let generateGrid = (perimName) => {
     let decades = Array.from(Array(12), (_, x) => 1900 + 10 * x);
@@ -345,9 +346,13 @@ $(function () {
     $("#btn-go").button()
         .click(go);
 
+    // $("input[id^='toggle-syllabe-']").on("click", _.debounce(function () {
+    //     toggleSyllabes(this);
+    // }, 0));
+
     // generate the grids for trends and percentiles
-    generateGrid("percentile");
-    generateGrid("trend");
+    // generateGrid("percentile");
+    // generateGrid("trend");
     showMap();
-    updateCount();
+    getNamePopulation(true);
 });

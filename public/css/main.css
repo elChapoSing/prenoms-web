@@ -21,12 +21,12 @@ body {
     grid-row-gap: 1.15em;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(4, 1fr) repeat(2, 2fr);
-    grid-template-areas: "percentile trend   syllabe nombre nombre nombre"
-                         "percentile trend   sexe    nombre nombre nombre"
-                         "percentile trend   count   nombre nombre nombre"
-                         "tableau    tableau cloud   cloud  carte  carte "
-                         "tableau    tableau cloud   cloud  carte  carte "
-                         "tableau    tableau cloud   cloud  carte  carte ";
+    grid-template-areas: "decade     decade     decade  nombre nombre nombre nombre"
+                         "percentile trend      gender  nombre nombre nombre nombre"
+                         "syllabe    syllabe    count   nombre nombre nombre nombre"
+                         "tableau    tableau    cloud   cloud  carte  carte carte"
+                         "tableau    tableau    cloud   cloud  carte  carte carte"
+                         "tableau    tableau    cloud   cloud  carte  carte carte";
     /*height: 96vh;*/
 }
 
@@ -36,22 +36,6 @@ body {
 
 #results > div {
     border: 0.2px dashed #222222;
-}
-
-#percentile {
-    grid-area: percentile;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(13, 1fr);
-    grid-auto-flow: column;
-}
-
-#trend {
-    grid-area: trend;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(13, 1fr);
-    grid-auto-flow: column;
 }
 
 #syllabe {
@@ -77,10 +61,56 @@ div[class^="syllabe-container"] > label {
     font-size: xx-large;
     background-color: aqua;
 }
+#percentile {
+    grid-area: percentile;
+    display: grid;
+    grid-auto-flow: column;
+}
+
+.percentile-container {
+    font-size: xx-large;
+
+}
+
+div[class^="percentile-container"] > label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.percentile-container-selected {
+    font-size: xx-large;
+    background-color: aqua;
+}
+#decade {
+    grid-area: decade;
+    display: grid;
+    grid-auto-flow: column;
+}
+
+.decade-container {
+    font-size: xx-large;
+
+}
+
+div[class^="decade-container"] > label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.decade-container-selected {
+    font-size: xx-large;
+    background-color: aqua;
+}
 
 
-#sexe {
-    grid-area: sexe;
+#gender {
+    grid-area: gender;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-auto-flow: column;
@@ -91,6 +121,22 @@ div[class^="syllabe-container"] > label {
 }
 
 .gender-container-selected {
+    text-align: center;
+    background-color: aqua;
+}
+
+#trend {
+    grid-area: trend;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: column;
+}
+
+.trend-container {
+    text-align: center;
+}
+
+.trend-container-selected {
     text-align: center;
     background-color: aqua;
 }

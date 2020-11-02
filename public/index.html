@@ -27,6 +27,7 @@
     <script src="/node_modules/d3-tip/dist/index.js"></script>
     <!--PLUGINS-->
     <script src="/public/js/fontawesome.js"></script>
+    <script src="/node_modules/underscore/underscore-min.js" type="text/javascript"></script>
     <script src="/node_modules/spin/dist/spin.min.js" type="text/javascript"></script>
     <script src="/node_modules/papaparse/papaparse.min.js" type="text/javascript"></script>
     <!--PERSONAL CODE-->
@@ -39,28 +40,86 @@
 </div>
 <div id="results">
     <div id="checkboxes" style="display:none;">
-        <input type="checkbox" id="toggle-male" onclick="toggleGender(this)">
-        <input type="checkbox" id="toggle-female" onclick="toggleGender(this)">
-        <input type="checkbox" id="toggle-both" onclick="toggleGender(this)">
-        <input type="checkbox" id="toggle-syllabe-1" onclick="toggleSyllabes(this)">
-        <input type="checkbox" id="toggle-syllabe-2" onclick="toggleSyllabes(this)">
-        <input type="checkbox" id="toggle-syllabe-3" onclick="toggleSyllabes(this)">
-        <input type="checkbox" id="toggle-syllabe-4" onclick="toggleSyllabes(this)">
-        <input type="checkbox" id="toggle-syllabe-5" onclick="toggleSyllabes(this)">
+        <input type="checkbox" id="toggle-gender-male" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-gender-female" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-gender-both" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-0" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-1" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-2" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-3" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-4" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-5" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-6" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-syllabe-7" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-percentile-25" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-percentile-50" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-percentile-75" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-percentile-100" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-trend-fastdegrowth" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-trend-degrowth" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-trend-growth" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-trend-fastgrowth" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1900" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1910" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1920" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1930" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1940" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1950" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1960" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1970" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1980" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-1990" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-2000" onclick="toggleGeneric(this)">
+        <input type="checkbox" id="toggle-decade-2010" onclick="toggleGeneric(this)">
     </div>
-    <div id="percentile"></div>
-    <div id="trend"></div>
+    <div id="decade">
+        <div id="decade-1900" class="decade-container"><label for="toggle-decade-1900">1900-1910</label></div>
+        <div id="decade-1910" class="decade-container"><label for="toggle-decade-1910">1910-1920</label></div>
+        <div id="decade-1920" class="decade-container"><label for="toggle-decade-1920">1920-1930</label></div>
+        <div id="decade-1930" class="decade-container"><label for="toggle-decade-1930">1930-1940</label></div>
+        <div id="decade-1940" class="decade-container"><label for="toggle-decade-1940">1940-1950</label></div>
+        <div id="decade-1950" class="decade-container"><label for="toggle-decade-1950">1950-1960</label></div>
+        <div id="decade-1960" class="decade-container"><label for="toggle-decade-1960">1960-1970</label></div>
+        <div id="decade-1970" class="decade-container"><label for="toggle-decade-1970">1970-1980</label></div>
+        <div id="decade-1980" class="decade-container"><label for="toggle-decade-1980">1980-1990</label></div>
+        <div id="decade-1990" class="decade-container"><label for="toggle-decade-1990">1990-2000</label></div>
+        <div id="decade-2000" class="decade-container"><label for="toggle-decade-2000">2000-2010</label></div>
+        <div id="decade-2010" class="decade-container"><label for="toggle-decade-2010">2010-2020</label></div>
+    </div>
+    <div id="percentile">
+        <div id="percentile-20" class="percentile-container"><label for="toggle-percentile-25">25</label></div>
+        <div id="percentile-40" class="percentile-container"><label for="toggle-percentile-25">25</label></div>
+        <div id="percentile-60" class="percentile-container"><label for="toggle-percentile-50">50</label></div>
+        <div id="percentile-80" class="percentile-container"><label for="toggle-percentile-75">75</label></div>
+        <div id="percentile-100" class="percentile-container"><label for="toggle-percentile-100">100</label></div>
+    </div>
+    <div id="trend">
+        <div id="trend-fastdegrowth" class="trend-container"><label for="toggle-trend-fastdegrowth"><i
+                class="fas fa-angle-double-down fa-10x"></i></label></div>
+        <div id="trend-degrowth" class="trend-container"><label for="toggle-trend-degrowth"><i
+                class="fas fa-angle-down fa-10x"></i></label></div>
+        <div id="trend-growth" class="trend-container"><label for="toggle-trend-growth"><i
+                class="fas fa-angle-up fa-10x"></i></label></div>
+        <div id="trend-fastgrowth" class="trend-container"><label for="toggle-trend-fastgrowth"><i
+                class="fas fa-angle-double-up fa-10x"></i></label></div>
+    </div>
     <div id="syllabe">
+        <div id="syllabe-0" class="syllabe-container"><label for="toggle-syllabe-0">0</label></div>
         <div id="syllabe-1" class="syllabe-container"><label for="toggle-syllabe-1">1</label></div>
         <div id="syllabe-2" class="syllabe-container"><label for="toggle-syllabe-2">2</label></div>
         <div id="syllabe-3" class="syllabe-container"><label for="toggle-syllabe-3">3</label></div>
         <div id="syllabe-4" class="syllabe-container"><label for="toggle-syllabe-4">4</label></div>
         <div id="syllabe-5" class="syllabe-container"><label for="toggle-syllabe-5">5</label></div>
+        <div id="syllabe-6" class="syllabe-container"><label for="toggle-syllabe-6">6</label></div>
+        <div id="syllabe-7" class="syllabe-container"><label for="toggle-syllabe-7">7</label></div>
     </div>
-    <div id="sexe">
-        <div id="sexe-male" class="gender-container"><label for="toggle-male"><i class="fas fa-mars fa-10x"></i></label></div>
-        <div id="sexe-female" class="gender-container"><label for="toggle-female"><i class="fas fa-venus fa-10x"></i></label></div>
-        <div id="sexe-both" class="gender-container"><label for="toggle-both"><i class="fas fa-venus-mars fa-10x"></i></label></div>
+    <div id="gender">
+        <div id="gender-male" class="gender-container"><label for="toggle-gender-male"><i
+                class="fas fa-mars fa-10x"></i></label></div>
+        <div id="gender-female" class="gender-container"><label for="toggle-gender-female"><i
+                class="fas fa-venus fa-10x"></i></label></div>
+        <div id="gender-both" class="gender-container"><label for="toggle-gender-both"><i
+                class="fas fa-venus-mars fa-10x"></i></label></div>
     </div>
     <div id="nombre-container">
         <div id="nombre"></div>

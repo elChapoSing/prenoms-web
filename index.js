@@ -21,7 +21,8 @@ app.use(favicon(path.join(__dirname, "public",'images','favicon.ico')));
 app.use(bodyParser.urlencoded({
     extended: true,
     limit: "5mb",
-    parameterLimit: 1000000
+    parameterLimit: 1000000,
+    type:["application/x-www-form-urlencoded","application/json"]
 }));
 mountRoutes(app);
 

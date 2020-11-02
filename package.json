@@ -24,6 +24,7 @@
     "serve-favicon": "^2.5.0",
     "spin": "0.0.1",
     "through": "^2.3.8",
+    "underscore": "^1.11.0",
     "yargs": "^16.0.3"
   }
 }
