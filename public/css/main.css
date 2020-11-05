@@ -20,13 +20,14 @@ body {
     display: grid;
     grid-row-gap: 1.15em;
     grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(4, 1fr) repeat(2, 2fr);
     grid-template-areas: "decade     decade     decade  nombre nombre nombre nombre"
                          "percentile trend      gender  nombre nombre nombre nombre"
+                         "sound       sound     sound   nombre nombre nombre nombre"
                          "syllabe    syllabe    count   nombre nombre nombre nombre"
                          "tableau    tableau    cloud   cloud  carte  carte carte"
                          "tableau    tableau    cloud   cloud  carte  carte carte"
                          "tableau    tableau    cloud   cloud  carte  carte carte";
+    grid-template-rows: repeat(4, 1fr) repeat(2, 2fr);
     /*height: 96vh;*/
 }
 
@@ -36,6 +37,31 @@ body {
 
 #results > div {
     border: 0.2px dashed #222222;
+}
+
+#sound {
+    grid-area: sound;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: 1fr 1fr;
+}
+
+.sound-container {
+    font-size: xx-large;
+
+}
+
+div[class^="sound-container"] > label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.sound-container-selected {
+    font-size: xx-large;
+    background-color: aqua;
 }
 
 #syllabe {
@@ -61,6 +87,7 @@ div[class^="syllabe-container"] > label {
     font-size: xx-large;
     background-color: aqua;
 }
+
 #percentile {
     grid-area: percentile;
     display: grid;
@@ -84,6 +111,7 @@ div[class^="percentile-container"] > label {
     font-size: xx-large;
     background-color: aqua;
 }
+
 #decade {
     grid-area: decade;
     display: grid;
@@ -108,7 +136,6 @@ div[class^="decade-container"] > label {
     background-color: aqua;
 }
 
-
 #gender {
     grid-area: gender;
     display: grid;
@@ -119,6 +146,15 @@ div[class^="decade-container"] > label {
 .gender-container {
     text-align: center;
 }
+
+div[class^="gender-container"] > label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
 
 .gender-container-selected {
     text-align: center;
@@ -135,6 +171,15 @@ div[class^="decade-container"] > label {
 .trend-container {
     text-align: center;
 }
+
+div[class^="trend-container"] > label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
 
 .trend-container-selected {
     text-align: center;

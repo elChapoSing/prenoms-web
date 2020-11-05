@@ -1,6 +1,8 @@
 const Router = require('express-promise-router')
 const db_pg = require('../dbs/db-pg');
 const db_couch = require('../dbs/db-couch');
+let nano = db_couch.nano;
+let db = nano.use("prenoms");
 const CSVStream = require('../dbs/db-pg/CSVStream');
 const router = new Router();
 const fs = require('fs');
@@ -29,8 +31,8 @@ router.get('/crossfilter/data_pg', (req, res) => {
 });
 
 router.get('/crossfilter/names', (req, res) => {
-    let nano = db_couch.nano;
-    let db = nano.use("prenoms");
+    // let nano = db_couch.nano;
+    // let db = nano.use("prenoms");
     db.get("all_names").then((body) => {
         res.send(body.names);
     }).catch((err) => {
@@ -53,28 +55,82 @@ router.get('/filters/double/:type/:decade/:number', (req, res) => {
 });
 
 router.get('/filters/single/:type/:value', (req, res) => {
+    // TODO : for some of them the comparison is with start_key instead of key=
     let nano = db_couch.nano;
     let db = nano.use("prenoms");
-    if (req.params.type === "gender") {
-        let mapping = {male:1,female:2,both:3};
-        req.params.value = mapping[req.params.value];
+
+    let type = req.params.type;
+    let value = req.params.value;
+    let queryParams = {};
+    ["percentile", "", "", "", "", "sound"]
+    if (type === "gender") {
+        let mapping = {male: 1, female: 2, both: 3};
+        value = mapping[req.params.value];
+        queryParams = {
+            key: value,
+            reduce: false,
+        };
+    } else if (type === "trend") {
+        let growth_mapping = {fastdegrowth: [-50], degrowth: [-50, 0], growth: [0, 100], fastgrowth: [100]};
+        value = growth_mapping[value];
+        if (value.length > 1) {
+            queryParams = {
+                start_key: value[0],
+                end_key: value[1] + 0.1,
+                reduce: false,
+            }
+        } else {
+            value = value[0];
+            if (value > 0) {
+                queryParams = {
+                    start_key: value,
+                    reduce: false,
+                }
+            } else {
+                queryParams = {
+                    start_key: value,
+                    descending: true,
+                    reduce: false,
+                }
+            }
+        }
+    } else if (type === "syllabe") {
+        queryParams = {
+            key: parseInt(value),
+            reduce: false,
+        };
+    } else if (type === "decade") {
+        queryParams = {
+            start_key: "" + parseInt(value),
+            end_key: "" + (parseInt(value) + 10),
+            reduce: false,
+        }
+    } else if (type === "sound") {
+        queryParams = {
+            key: value.replace(/\|/g,""),
+            reduce: false,
+        };
+    } else if (type === "percentile") {
+        queryParams = {
+            start_key: parseInt(value),
+            end_key: parseInt(value) + 20,
+            reduce: false,
+        }
+    } else {
+        throw Error("Unknown type for filters : " + type);
     }
-    let queryParams = {
-        "key": parseInt(req.params.value),
-        "reduce": false,
-    };
-    db.view("filters",  req.params.type, queryParams).then((body) => {
+    db.view("filters", type, queryParams).then((body) => {
         res.send(body.rows.map(x => x.value));
     }).catch((err) => {
         res.status(500).send(err);
     })
 });
 
-
 router.post('/filters', (req, res) => {
     let isCount = req.body.isCount;
     if (req.body.hasOwnProperty("filters")) {
         let dataPromise = req.body.filters;
+        console.time("promises")
         Promise
             .map(dataPromise, (x) => {
                 if (["percentiles", "trends"].includes(x.type)) {
@@ -86,8 +142,10 @@ router.post('/filters', (req, res) => {
                     }).then(body => {
                         return {req: x, data: body.data};
                     }).catch(err => err);
-                } else if (["syllabe", "gender","decade"].includes(x.type)) {
-                    return axios.get("/" + ['prenoms', 'filters', 'single', x.type, x.value].join("/"), {
+                } else if (["percentile", "trend", "syllabe", "gender", "sound", "decade"].includes(x.type)) {
+                    let type = x.type;
+                    let value = x.value;
+                    return axios.get("/" + ['prenoms', 'filters', 'single', type, encodeURI(value)].join("/"), {
                         proxy: {
                             host: '127.0.0.1',
                             port: 4000,
@@ -100,39 +158,37 @@ router.post('/filters', (req, res) => {
                 }
             }, {concurrency: 20})
             .then((values) => {
-                // we send the intersect of all values
-                let resValues =  values.flat(1).sort().filter((v, i, a) => a.indexOf(v) === i);
-                // let resValues =[];
-                // //we add all the names from trends/percentiles
-                // let addValues = values.filter((result) => ["percentiles","trends"].includes(result.req.type)).map((x) => x.data);
-                // addValues = addValues.flat(1).sort().filter((v, i, a) => a.indexOf(v) === i);
-                //
-                // //then intersect with the actual filters
-                // let genderValues = values.filter((result) => ["gender"].includes(result.req.type)).map((x) => x.data);
-                // let syllabeValues = values.filter((result) => ["syllabe"].includes(result.req.type)).map((x) => x.data);
-                // let decadeValues = values.filter((result) => ["decade"].includes(result.req.type)).map((x) => x.data);
-                // if (addValues.length>0) { // need to interesect with addition of gender and syllabe
-                //     let intersectValues = values.filter((result) => ["gender","syllabe","decade"].includes(result.req.type)).map((x) => x.data);
-                //     if (intersectValues.length>0) {
-                //         intersectValues = intersectValues.flat(1).sort().filter((v, i, a) => a.indexOf(v) === i);
-                //         resValues = addValues.filter((name) => intersectValues.includes(name));
-                //     } else {
-                //         resValues = addValues;
-                //     }
-                // } else { //no addValues so need to add independently gender and syllabe then intersect both
-                //     genderValues = genderValues.flat(1).sort().filter((v, i, a) => a.indexOf(v) === i);
-                //     syllabeValues = syllabeValues.flat(1).sort().filter((v, i, a) => a.indexOf(v) === i);
-                //     decadeValues = decadeValues.flat(1).sort().filter((v, i, a) => a.indexOf(v) === i);
-                //     if (genderValues.length*syllabeValues.length ===0) { //one of the 2 is empty -> addition of the other
-                //         resValues = [genderValues,syllabeValues].flat(1).sort().filter((v, i, a) => a.indexOf(v) === i);
-                //     } else {
-                //         resValues = genderValues.filter((name) => syllabeValues.includes(name));
-                //     }
-                // }
-                if (isCount) {
-                    res.send({count: resValues.length});
+                console.timeEnd("promises")
+                // we send the intersect of all (union by type)
+                let errors = values.filter((x) => x.stack);
+                if (errors.length > 0) {
+                    res.status(500).send(errors);
                 } else {
-                    res.send(resValues);
+                    values = values.filter((x) => !x.stack);
+                    let decades = values.filter((x) => x.req.type === "decade").map((x) => x.req.value);
+                    console.time("filter decade values")
+                    values.filter((x) => ["percentile", "trend"].includes(x.req.type)).forEach((x) => {
+                        if (decades.length > 0) {
+                            x.data = x.data.filter((x) => decades.includes(x[0])).map((x) => x[1]);
+                        } else {
+                            x.data = x.data.map((x) => x[1]);
+                        }
+                    });
+                    console.timeEnd("filter decade values")
+                    console.time("inter+union")
+                    let resValues = _.intersection(
+                        ..._.unique(values.map((x)=> x.req.type))
+                            .map((queryType) => {
+                                return _.union(...values.filter((x) => x.req.type === queryType).map((x) => x.data));
+                            })
+                            .filter((x) => x.length > 0)
+                    );
+                    console.timeEnd("inter+union")
+                    if (isCount) {
+                        res.send({count: resValues.length});
+                    } else {
+                        res.send(resValues);
+                    }
                 }
             })
             .catch((err) => {
@@ -141,7 +197,7 @@ router.post('/filters', (req, res) => {
     } else {
         let nano = db_couch.nano;
         let db = nano.use("prenoms");
-        db.view("summaries", "all_names", {
+        db.view("filters", "all_names", {
             "group_level": isCount ? 0 : 1,
         }).then((body) => {
             if (isCount) {
@@ -155,3 +211,13 @@ router.post('/filters', (req, res) => {
     }
 
 });
+
+router.get("/sons", (req, res) => {
+    let nano = db_couch.nano;
+    let db = nano.use("prenoms");
+    db.view("filters", "sound", {group_level: 1}).then((body) => {
+        res.send(body.rows.sort((x,y) => y.value - x.value).map(x => x.key));
+    }).catch((err) => {
+        res.status(500).send(err);
+    })
+})

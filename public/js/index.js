@@ -165,41 +165,31 @@ let go = () => {
     spinner.stop();
 };
 
+let reset = () => {
+    $("div[class$='-selected']").each((i,elmt) => {
+        let theClass = elmt.className
+        let newClass = theClass.replace("-selected","");
+        let checkboxId = "";
+        $(elmt).removeClass(theClass).addClass(newClass);
+        $("#toggle-"+elmt.id).prop("checked",false);
+    })
+    getNamePopulation(true);
+}
+
 let getNamePopulation = (isCount) => {
     $("#count-number").html("");
     let spinner = new Spinner({}).spin(document.getElementById("count-number"));
-    let percentileFilters = []
-    let trendFilters = []
-    let syllableFilters = []
-    let genderFilters = []
-    let decadeFilters = []
-    // $("#percentile > div.grid-selected").each(function () {
-    //     let theSplit = this.id.split("!");
-    //     if (!["percentile", "decade"].includes(theSplit[1])) {
-    //         percentileFilters.push({type: "percentiles", decade: theSplit[2], number: theSplit[1]});
-    //     }
-    // });
-    $("#percentile > div.grid-selected").each(function () {
-        percentileFilters.push({type: "percentiles", value: this.id.split("-")[1]});
-    });
-    $("#trend > div.grid-selected").each(function () {
-        trendFilters.push({type: "trends", value: this.id.split("-")[1]});
-    });
-    $("#syllabe > div.syllabe-container-selected").each(function () {
-        syllableFilters.push({type: "syllabe", value: this.id.split("-")[1]});
-    });
-    $("#gender > div.gender-container-selected").each(function () {
-        genderFilters.push({type: "gender", value: this.id.split("-")[1]});
-    });
-    $("#decade > div.decade-container-selected").each(function () {
-        decadeFilters.push({type: "decade", value: this.id.split("-")[1]});
-    });
+    let filters = [];
+    for (let filtername of ["percentile","trend","syllabe","gender","decade","sound"]) {
+        $("#"+filtername+" > div."+filtername+"-container-selected").each(function () {
+            filters.push({type: filtername, value: this.id.split("-")[1]});
+        });
+    }
     //get the count
     let url = "/prenoms/filters"
     let filtersData = {
         isCount: isCount,
     };
-    let filters = [...percentileFilters, ...trendFilters, ...syllableFilters, ...genderFilters, ...decadeFilters];
     if (filters.length > 0) {
         filtersData.filters = filters;
     }
@@ -225,126 +215,36 @@ let transfoGenerator = (isChecked, className, selectedClassName) => {
     }
 }
 
-let toggleSelect = (checkbox, perimName, isRow, isCol) => {
-
-    let transfo = transfoGenerator(checkbox.checked, "grid-unselected", "grid-selected");
-    let source_div = checkbox.id.split("!").slice(1).join("!");
-    transfo($("#" + $.escapeSelector(source_div)));
-
-    if (isRow) {
-        // percentile!decade!1900 !> percentile!x!1900
-        let decade = checkbox.id.split("!")[3];
-        let re = new RegExp(perimName + "!-?[0-9]+!" + decade, "g");
-        $("#" + perimName + " > div").map(function () {
-            if (this.id.match(re)) {
-                transfo($(this));
-                $("#" + $.escapeSelector("toggle!" + this.id)).prop("checked", checkbox.checked);
-            }
-        });
-    } else if (isCol) {
-        //percentile!percentile!0 !> percentile!0!x
-        let percentile = checkbox.id.split("!")[3];
-        let re = new RegExp(perimName + "!" + percentile + "![0-9]{4}", "g");
-        $("#" + perimName + " > div").map(function () {
-            if (this.id.match(re)) {
-                transfo($(this));
-                $("#" + $.escapeSelector("toggle!" + this.id)).prop("checked", checkbox.checked);
-            }
-        })
-    } else {
-        let percentile = checkbox.id.split("!")[2];
-        let decade = checkbox.id.split("!")[3];
-        if (checkbox.checked) {
-            // verify if it completes a rwo/column to activate header
-            let reDecade = new RegExp(perimName + "!-?[0-9]+!" + decade, "g");
-            let rePercentile = new RegExp(perimName + "!" + percentile + "![0-9]{4}", "g");
-            let testRow = [];
-            $("#" + perimName + " > div").filter(function () {
-                return this.id.match(reDecade);
-            }).each(function () {
-                testRow.push($("#" + $.escapeSelector("toggle!" + this.id)).prop("checked"));
-            })
-            if (testRow.every(x => x)) {
-                $("#" + $.escapeSelector("toggle!" + perimName + "!decade!" + decade)).prop("checked", true);
-                transfo($("#" + $.escapeSelector(perimName + "!decade!" + decade)));
-            }
-            let testCol = [];
-            $("#" + perimName + " > div").filter(function () {
-                return this.id.match(rePercentile);
-            }).each(function () {
-                testCol.push($("#" + $.escapeSelector("toggle!" + this.id)).prop("checked"));
-            })
-            if (testCol.every(x => x)) {
-                $("#" + $.escapeSelector("toggle!" + perimName + "!percentile!" + percentile)).prop("checked", false);
-                transfo($("#" + $.escapeSelector(perimName + "!percentile!" + percentile)));
-            }
-        } else {
-            // header
-            // percentile!x!1900 !> percentile!percentile!x
-            $("#" + $.escapeSelector("toggle!" + perimName + "!percentile!" + percentile)).prop("checked", false);
-            transfo($("#" + $.escapeSelector(perimName + "!percentile!" + percentile)));
-            //row title
-            // percentile!0!x !> percentile!decade!x
-            $("#" + $.escapeSelector("toggle!" + perimName + "!decade!" + decade)).prop("checked", false);
-            transfo($("#" + $.escapeSelector(perimName + "!decade!" + decade)));
-        }
-    }
-    getNamePopulation(true);
-};
-
 let toggleGeneric = (checkbox) => {
-    let theName = checkbox.id.split("-")[1];
-    let theThing = checkbox.id.split("-")[2];
+    let theSplit = checkbox.id.split("-");
+    let theName = theSplit[1];
+    let theThing = "";
+    for (let i = 2; i < theSplit.length; i++) {
+        theThing += theSplit[i] + "-";
+    }
+    theThing = theThing.slice(0, -1);
     transfoGenerator(checkbox.checked, theName + "-container", theName + "-container-selected")($("#" + theName + "-" + $.escapeSelector(theThing)));
     getNamePopulation(true);
 }
 
-let generateGrid = (perimName) => {
-    let decades = Array.from(Array(12), (_, x) => 1900 + 10 * x);
-    let variables = [];
-    let step = 0;
-    if (perimName === "percentile") {
-        step = 25;
-        variables = Array.from(Array(4), (_, x) => step * x);
-    } else if (perimName === "trend") {
-        step = 50;
-        variables = Array.from(Array(5), (_, x) => -100 + step * x);
-    }
-    $("#" + perimName).append('<div id="' + perimName + '!decade!empty"></div>');
-    for (let decade of decades) {
-        $("#" + perimName).append(
-            '<div id="' + perimName + '!decade!' + decade + '" class="grid-unselected">\n' +
-            '<label for="toggle!' + perimName + '!decade!' + decade + '">' + decade + '</label>\n' +
-            '</div>');
-        $("#checkboxes").append(
-            '<input type="checkbox" id="toggle!' + perimName + '!decade!' + decade + '" onclick="toggleSelect(this,\'' + perimName + '\',true,false)">'
-        );
-    }
-    for (let variable of variables) {
-        $("#" + perimName).append(
-            '<div id="' + perimName + '!percentile!' + variable + '"  class="grid-unselected">\n' +
-            '<label for="toggle!' + perimName + '!percentile!' + variable + '">' + variable + '!' + (variable + step) + '</label>\n' +
-            '</div>');
-        $("#checkboxes").append(
-            '<input type="checkbox" id="toggle!' + perimName + '!percentile!' + variable + '" onclick="toggleSelect(this,\'' + perimName + '\',false,true)">'
-        );
-        for (let decade of decades) {
-            $("#" + perimName).append(
-                '<div id="' + perimName + '!' + variable + '!' + decade + '" class="grid-unselected">\n' +
-                '<label for="toggle!' + perimName + '!' + variable + '!' + decade + '">' + variable + '!' + decade + '</label>\n' +
-                '</div>'
-            );
-            $("#checkboxes").append(
-                '<input type="checkbox" id="toggle!' + perimName + '!' + variable + '!' + decade + '" onclick="toggleSelect(this,\'' + perimName + '\',false,false)">'
-            );
+let generateSounds = () => {
+    $("#sound").html("");
+    $.ajax("/prenoms/sons").then((arrSons) => {
+        console.log(arrSons);
+        for (let son of arrSons) {
+            $("#sound").append('<div id="sound-|' + son + '|" class="sound-container"><label for="toggle-sound-|' + son + '|">' + son + '</label></div>')
+            $("#checkboxes").append('<input type="checkbox" id="toggle-sound-|' + son + '|" onclick="toggleGeneric(this)">');
         }
-    }
-
+    }).catch((err) => {
+        console.log(err);
+    })
 }
 
 $(function () {
     $("#btn-go").button()
         .click(go);
+    $("#btn-reset").button()
+        .click(reset);
 
     // $("input[id^='toggle-syllabe-']").on("click", _.debounce(function () {
     //     toggleSyllabes(this);
@@ -354,5 +254,116 @@ $(function () {
     // generateGrid("percentile");
     // generateGrid("trend");
     showMap();
+    generateSounds();
     getNamePopulation(true);
 });
+
+// let generateGrid = (perimName) => {
+//     let decades = Array.from(Array(12), (_, x) => 1900 + 10 * x);
+//     let variables = [];
+//     let step = 0;
+//     if (perimName === "percentile") {
+//         step = 25;
+//         variables = Array.from(Array(4), (_, x) => step * x);
+//     } else if (perimName === "trend") {
+//         step = 50;
+//         variables = Array.from(Array(5), (_, x) => -100 + step * x);
+//     }
+//     $("#" + perimName).append('<div id="' + perimName + '!decade!empty"></div>');
+//     for (let decade of decades) {
+//         $("#" + perimName).append(
+//             '<div id="' + perimName + '!decade!' + decade + '" class="grid-unselected">\n' +
+//             '<label for="toggle!' + perimName + '!decade!' + decade + '">' + decade + '</label>\n' +
+//             '</div>');
+//         $("#checkboxes").append(
+//             '<input type="checkbox" id="toggle!' + perimName + '!decade!' + decade + '" onclick="toggleSelect(this,\'' + perimName + '\',true,false)">'
+//         );
+//     }
+//     for (let variable of variables) {
+//         $("#" + perimName).append(
+//             '<div id="' + perimName + '!percentile!' + variable + '"  class="grid-unselected">\n' +
+//             '<label for="toggle!' + perimName + '!percentile!' + variable + '">' + variable + '!' + (variable + step) + '</label>\n' +
+//             '</div>');
+//         $("#checkboxes").append(
+//             '<input type="checkbox" id="toggle!' + perimName + '!percentile!' + variable + '" onclick="toggleSelect(this,\'' + perimName + '\',false,true)">'
+//         );
+//         for (let decade of decades) {
+//             $("#" + perimName).append(
+//                 '<div id="' + perimName + '!' + variable + '!' + decade + '" class="grid-unselected">\n' +
+//                 '<label for="toggle!' + perimName + '!' + variable + '!' + decade + '">' + variable + '!' + decade + '</label>\n' +
+//                 '</div>'
+//             );
+//             $("#checkboxes").append(
+//                 '<input type="checkbox" id="toggle!' + perimName + '!' + variable + '!' + decade + '" onclick="toggleSelect(this,\'' + perimName + '\',false,false)">'
+//             );
+//         }
+//     }
+//
+// }
+
+// let toggleSelect = (checkbox, perimName, isRow, isCol) => {
+//
+//     let transfo = transfoGenerator(checkbox.checked, "grid-unselected", "grid-selected");
+//     let source_div = checkbox.id.split("!").slice(1).join("!");
+//     transfo($("#" + $.escapeSelector(source_div)));
+//
+//     if (isRow) {
+//         // percentile!decade!1900 !> percentile!x!1900
+//         let decade = checkbox.id.split("!")[3];
+//         let re = new RegExp(perimName + "!-?[0-9]+!" + decade, "g");
+//         $("#" + perimName + " > div").map(function () {
+//             if (this.id.match(re)) {
+//                 transfo($(this));
+//                 $("#" + $.escapeSelector("toggle!" + this.id)).prop("checked", checkbox.checked);
+//             }
+//         });
+//     } else if (isCol) {
+//         //percentile!percentile!0 !> percentile!0!x
+//         let percentile = checkbox.id.split("!")[3];
+//         let re = new RegExp(perimName + "!" + percentile + "![0-9]{4}", "g");
+//         $("#" + perimName + " > div").map(function () {
+//             if (this.id.match(re)) {
+//                 transfo($(this));
+//                 $("#" + $.escapeSelector("toggle!" + this.id)).prop("checked", checkbox.checked);
+//             }
+//         })
+//     } else {
+//         let percentile = checkbox.id.split("!")[2];
+//         let decade = checkbox.id.split("!")[3];
+//         if (checkbox.checked) {
+//             // verify if it completes a rwo/column to activate header
+//             let reDecade = new RegExp(perimName + "!-?[0-9]+!" + decade, "g");
+//             let rePercentile = new RegExp(perimName + "!" + percentile + "![0-9]{4}", "g");
+//             let testRow = [];
+//             $("#" + perimName + " > div").filter(function () {
+//                 return this.id.match(reDecade);
+//             }).each(function () {
+//                 testRow.push($("#" + $.escapeSelector("toggle!" + this.id)).prop("checked"));
+//             })
+//             if (testRow.every(x => x)) {
+//                 $("#" + $.escapeSelector("toggle!" + perimName + "!decade!" + decade)).prop("checked", true);
+//                 transfo($("#" + $.escapeSelector(perimName + "!decade!" + decade)));
+//             }
+//             let testCol = [];
+//             $("#" + perimName + " > div").filter(function () {
+//                 return this.id.match(rePercentile);
+//             }).each(function () {
+//                 testCol.push($("#" + $.escapeSelector("toggle!" + this.id)).prop("checked"));
+//             })
+//             if (testCol.every(x => x)) {
+//                 $("#" + $.escapeSelector("toggle!" + perimName + "!percentile!" + percentile)).prop("checked", false);
+//                 transfo($("#" + $.escapeSelector(perimName + "!percentile!" + percentile)));
+//             }
+//         } else {
+//             // header
+//             // percentile!x!1900 !> percentile!percentile!x
+//             $("#" + $.escapeSelector("toggle!" + perimName + "!percentile!" + percentile)).prop("checked", false);
+//             transfo($("#" + $.escapeSelector(perimName + "!percentile!" + percentile)));
+//             //row title
+//             // percentile!0!x !> percentile!decade!x
+//             $("#" + $.escapeSelector("toggle!" + perimName + "!decade!" + decade)).prop("checked", false);
+//             transfo($("#" + $.escapeSelector(perimName + "!decade!" + decade)));
+//         }
+//     }
+//     getNamePopulation(true);
+// };
