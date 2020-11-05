@@ -55,9 +55,6 @@ router.get('/filters/double/:type/:decade/:number', (req, res) => {
 });
 
 router.get('/filters/single/:type/:value', (req, res) => {
-    // TODO : for some of them the comparison is with start_key instead of key=
-    let nano = db_couch.nano;
-    let db = nano.use("prenoms");
 
     let type = req.params.type;
     let value = req.params.value;
@@ -213,8 +210,6 @@ router.post('/filters', (req, res) => {
 });
 
 router.get("/sons", (req, res) => {
-    let nano = db_couch.nano;
-    let db = nano.use("prenoms");
     db.view("filters", "sound", {group_level: 1}).then((body) => {
         res.send(body.rows.sort((x,y) => y.value - x.value).map(x => x.key));
     }).catch((err) => {
