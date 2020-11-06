@@ -160,7 +160,7 @@ let go = () => {
             }).then((results) => {
                 console.timeEnd("load data");
                 console.time("parse data");
-                let parsedData = Papa.parse(results, {header: true});
+                let parsedData = Papa.parse(results, {header: true,dynamicTyping: true});
                 console.timeEnd("parse data");
                 console.time("initialize data");
                 initializeCrossfilter(parsedData.data);
