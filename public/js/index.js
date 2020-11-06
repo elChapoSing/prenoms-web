@@ -21,7 +21,7 @@ let showDashboard = () => {
         .renderTitle(false)
         .dimension(dimData["annee"])
         .group(groupData["annee"]["sum"])
-        .x(d3.scaleBand())
+        .x(d3.scaleLinear())
         .elasticX(true)
         .elasticY(true)
         .brushOn(false)
