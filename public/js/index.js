@@ -37,8 +37,12 @@ let showDashboard = () => {
         return theChart;
     };
     seriesChart();
-    showMap();
-    dc.renderAll("data");
+    showMap().then((mapChart) => {
+        dc.renderAll("data");
+    }).catch((err) => {
+        console.log(err);
+    });
+
 };
 
 let initializeCrossfilter = (data) => {
@@ -116,7 +120,7 @@ let loadData = (mode) => {
 
 let showMap = () => {
     let url = "/public/geojson/departements.json";
-    $.ajax(url, {}).then((departementsJson) => {
+    return $.ajax(url, {}).then((departementsJson) => {
         let mapChart = new dc.GeoChoroplethChart("#carte", "data");
         mapChart.dimension(dimData["departement"])
             .group(groupData["departement"]["sum"])
@@ -136,6 +140,7 @@ let showMap = () => {
             .title(function (d) {
                 return "Departement: " + d.key + "\nTotal Prenoms: " + d.value;
             });
+        return mapChart;
     });
 
 }
