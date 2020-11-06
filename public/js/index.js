@@ -144,7 +144,7 @@ let go = () => {
     let names = getNamePopulation(false);
     console.time("load data");
     $.ajax("/prenoms/crossfilter/data_pg", {
-        data: JSON.stringify(names),
+        data: JSON.stringify(names.data),
         headers: {"Content-Type": "application/json"},
         method: "POST",
     }).then((results) => {

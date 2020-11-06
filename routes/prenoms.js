@@ -185,7 +185,7 @@ router.post('/filters', (req, res) => {
                     if (isCount) {
                         res.send({count: resValues.length});
                     } else {
-                        res.send(resValues);
+                        res.send({count:resValues.length,data:resValues});
                     }
                 }
             })
@@ -201,7 +201,7 @@ router.post('/filters', (req, res) => {
             if (isCount) {
                 res.send({count: body.rows[0].value});
             } else {
-                res.send(body.rows.map(x => x.key));
+                res.send({count:body.rows.length, data:body.rows.map(x => x.key)});
             }
         }).catch((err) => {
             res.status(500).send(err);
