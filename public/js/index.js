@@ -24,12 +24,13 @@ let showDashboard = () => {
             .brushOn(false)
             .legend(new dc.HtmlLegend().container("#nombre-legend").horizontal(true).highlightSelected(true))
             .seriesAccessor((d) => {
-                console.log(d);
                 return d.key[0];
             })
             .keyAccessor((d) => {
-                console.log(d);
                 return d.key[1];
+            })
+            .valueAccessor( (d) => {
+                return d.value.sum;
             })
             .margins({left: 70, top: 10, bottom: 30, right: 50})
             .on("preRedraw", function (chart) {
