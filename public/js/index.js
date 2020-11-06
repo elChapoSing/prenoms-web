@@ -37,12 +37,12 @@ let showDashboard = () => {
         return theChart;
     };
     seriesChart();
-    showMap().then((mapChart) => {
-        dc.renderAll("data");
-    }).catch((err) => {
-        console.log(err);
-    });
-
+    // showMap().then((mapChart) => {
+    //     dc.renderAll("data");
+    // }).catch((err) => {
+    //     console.log(err);
+    // });
+    dc.renderAll("data");
 };
 
 let initializeCrossfilter = (data) => {
