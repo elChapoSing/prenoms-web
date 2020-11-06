@@ -51,20 +51,21 @@ let initializeCrossfilter = (data) => {
         return reductio()
             .sum((d) => +d["nombre"]);
     }
-
-    // let fields_dim = ["prenom", "annee2", "departement", "sexe"];
-    let fields_dim = ["departement"];
+    console.time("Dimensions");
+    let fields_dim = ["prenom", "annee2", "departement", "sexe"];
+    // let fields_dim = ["departement"];
     for (let field of fields_dim) {
         console.time("Dimension : " + field);
         dimData[field] = xData.dimension(field);
         console.timeEnd("Dimension : " + field);
     }
-    // console.time("Dimension : annee");
-    // dimData["annee"] = xData.dimension((d) => [d.prenom, d.annee]);
-    // console.timeEnd("Dimension : annee");
-
-    // let fields_group = ["prenom", "annee", "annee2", "departement", "sexe"];
-    let fields_group = ["departement"];
+    console.time("Dimension : annee");
+    dimData["annee"] = xData.dimension((d) => [d.prenom, d.annee]);
+    console.timeEnd("Dimension : annee");
+    console.timeEnd("Dimensions");
+    console.time("Groups");
+    let fields_group = ["prenom", "annee", "annee2", "departement", "sexe"];
+    // let fields_group = ["departement"];
     for (let field of fields_group) {
         console.time("Group : " + field);
         groupData[field] = {};
@@ -72,6 +73,7 @@ let initializeCrossfilter = (data) => {
         reducerGenerator()(groupData[field]["sum"]);
         console.timeEnd("Group : " + field);
     }
+    console.timeEnd("Groups");
 
 }
 
