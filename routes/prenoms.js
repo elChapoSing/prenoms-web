@@ -12,33 +12,13 @@ const axios = require('axios');
 const _ = require('underscore');
 module.exports = router;
 
-router.get('/crossfilter/data', (req, res) => {
-    let stream = fs.createReadStream(path.resolve("./public/data/data.csv"), "utf-8");
-    stream.pipe(res);
-});
-
-router.get('/crossfilter/data_pg', (req, res) => {
-    db_pg.pool.connect((err, client, done) => {
-        if (err) {
-            throw err;
-        }
-        res.set('Content-Type', 'text/csv');
-        const query = new db_pg.QueryStream('select * from public.prenoms_dep order by annee, prenom, departement, sexe;');
-        const stream = client.query(query);
-        stream.on('end', done);
-        stream.pipe(CSVStream.stringify()).pipe(res);
-    });
-});
-
-router.get('/crossfilter/names', (req, res) => {
-    // let nano = db_couch.nano;
-    // let db = nano.use("prenoms");
-    db.get("all_names").then((body) => {
-        res.send(body.names);
+router.get("/sons", (req, res) => {
+    db.view("filters", "sound", {group_level: 1}).then((body) => {
+        res.send(body.rows.sort((x,y) => y.value - x.value).map(x => x.key));
     }).catch((err) => {
         res.status(500).send(err);
     })
-});
+})
 
 router.get('/filters/double/:type/:decade/:number', (req, res) => {
     let nano = db_couch.nano;
@@ -210,15 +190,6 @@ router.post('/filters', (req, res) => {
 
 });
 
-router.get("/sons", (req, res) => {
-    db.view("filters", "sound", {group_level: 1}).then((body) => {
-        res.send(body.rows.sort((x,y) => y.value - x.value).map(x => x.key));
-    }).catch((err) => {
-        res.status(500).send(err);
-    })
-})
-
-
 router.post('/crossfilter/data_pg', (req, res) => {
     db_pg.pool.connect((err, client, done) => {
         if (err) {
@@ -231,3 +202,7 @@ router.post('/crossfilter/data_pg', (req, res) => {
         stream.pipe(CSVStream.stringify()).pipe(res);
     });
 });
+
+
+
+
