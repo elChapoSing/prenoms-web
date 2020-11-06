@@ -37,6 +37,10 @@ let showDashboard = () => {
         .valueAccessor((d) => {
             return d.value.sum;
         })
+        .renderTitle(true)
+        .title ((d) => {
+            return d.key[0] + " " + d.key[1] + " : " + d.value.sum;
+        })
         .margins({left: 70, top: 10, bottom: 30, right: 50})
         .on("preRedraw", function (chart) {
             chart.rescale();
