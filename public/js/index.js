@@ -37,45 +37,42 @@ let showDashboard = () => {
         return theChart;
     };
     seriesChart();
+    showMap();
     dc.renderAll("data");
 };
 
-let initializeCrossfilter = (mode, data) => {
-    if (mode === "names") {
-        xNames = null;
-        xNames = crossfilter(data);
-    } else if (mode === "data") {
-        xData = null;
-        console.time("input xfilter");
-        xData = crossfilter(data);
-        console.timeEnd("input xfilter");
+let initializeCrossfilter = (data) => {
+    xData = null;
+    console.time("input xfilter");
+    xData = crossfilter(data);
+    console.timeEnd("input xfilter");
 
-        let reducerGenerator = () => {
-            return reductio()
-                .sum((d) => +d["nombre"]);
-        }
-
-        // let fields_dim = ["prenom", "annee2", "departement", "sexe"];
-        let fields_dim = ["departement"];
-        for (let field of fields_dim) {
-            console.time("Dimension : " + field);
-            dimData[field] = xData.dimension(field);
-            console.timeEnd("Dimension : " + field);
-        }
-        // console.time("Dimension : annee");
-        // dimData["annee"] = xData.dimension((d) => [d.prenom, d.annee]);
-        // console.timeEnd("Dimension : annee");
-
-        // let fields_group = ["prenom", "annee", "annee2", "departement", "sexe"];
-        let fields_group = ["departement"];
-        for (let field of fields_group) {
-            console.time("Group : " + field);
-            groupData[field] = {};
-            groupData[field]["sum"] = dimData[field].group();
-            reducerGenerator()(groupData[field]["sum"]);
-            console.timeEnd("Group : " + field);
-        }
+    let reducerGenerator = () => {
+        return reductio()
+            .sum((d) => +d["nombre"]);
     }
+
+    // let fields_dim = ["prenom", "annee2", "departement", "sexe"];
+    let fields_dim = ["departement"];
+    for (let field of fields_dim) {
+        console.time("Dimension : " + field);
+        dimData[field] = xData.dimension(field);
+        console.timeEnd("Dimension : " + field);
+    }
+    // console.time("Dimension : annee");
+    // dimData["annee"] = xData.dimension((d) => [d.prenom, d.annee]);
+    // console.timeEnd("Dimension : annee");
+
+    // let fields_group = ["prenom", "annee", "annee2", "departement", "sexe"];
+    let fields_group = ["departement"];
+    for (let field of fields_group) {
+        console.time("Group : " + field);
+        groupData[field] = {};
+        groupData[field]["sum"] = dimData[field].group();
+        reducerGenerator()(groupData[field]["sum"]);
+        console.timeEnd("Group : " + field);
+    }
+
 }
 
 let loadData = (mode) => {
@@ -118,7 +115,7 @@ let loadData = (mode) => {
 let showMap = () => {
     let url = "/public/geojson/departements.json";
     $.ajax(url, {}).then((departementsJson) => {
-        let mapChart = new dc.GeoChoroplethChart("#carte");
+        let mapChart = new dc.GeoChoroplethChart("#carte","data");
         mapChart.dimension(dimData["departement"])
             .group(groupData["departement"]["sum"])
             .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
@@ -145,39 +142,36 @@ let go = () => {
     console.log("go");
     let spinner = new Spinner({}).spin(document.getElementById("spinner"));
     let names = getNamePopulation(false);
-    $.ajax("/prenoms/crossfilter/data_pg",{
+    console.time("load data");
+    $.ajax("/prenoms/crossfilter/data_pg", {
         data: JSON.stringify(names),
         headers: {"Content-Type": "application/json"},
         method: "POST",
-    })
-    // Promise.all([loadData("names"), loadData("data")]).then((values) => {
-    //     console.log("data loaded");
-    //     console.time("initialize names");
-    //     initializeCrossfilter("names", values[0]);
-    //     console.timeEnd("initialize names");
-    //     console.time("initialize data");
-    //     initializeCrossfilter("data", values[1]);
-    //     console.timeEnd("initialize data");
-    //     console.time("show Dashboard");
-    //     showDashboard();
-    //     console.timeEnd("show Dashboard");
-    //     console.time("format Dashboard");
-    //     formatDashboard();
-    //     console.timeEnd("format Dashboard");
-    //     spinner.stop();
-    // }).catch((err) => {
-    //     console.log(err);
-    // })
-    spinner.stop();
+    }).then((results) => {
+        console.timeEnd("load data");
+        console.time("initialize data");
+        initializeCrossfilter(results);
+        console.timeEnd("initialize data");
+        console.time("show Dashboard");
+        showDashboard();
+        console.timeEnd("show Dashboard");
+        console.time("format Dashboard");
+        formatDashboard();
+        console.timeEnd("format Dashboard");
+        spinner.stop();
+    }).catch((err) => {
+        console.log("blabla");
+        console.log(err);
+    });
 };
 
 let reset = () => {
-    $("div[class$='-selected']").each((i,elmt) => {
+    $("div[class$='-selected']").each((i, elmt) => {
         let theClass = elmt.className
-        let newClass = theClass.replace("-selected","");
+        let newClass = theClass.replace("-selected", "");
         let checkboxId = "";
         $(elmt).removeClass(theClass).addClass(newClass);
-        $("#toggle-"+elmt.id).prop("checked",false);
+        $("#toggle-" + elmt.id).prop("checked", false);
     })
     getNamePopulation(true);
 }
@@ -186,8 +180,8 @@ let getNamePopulation = (isCount) => {
     $("#count-number").html("");
     let spinner = new Spinner({}).spin(document.getElementById("count-number"));
     let filters = [];
-    for (let filtername of ["percentile","trend","syllabe","gender","decade","sound"]) {
-        $("#"+filtername+" > div."+filtername+"-container-selected").each(function () {
+    for (let filtername of ["percentile", "trend", "syllabe", "gender", "decade", "sound"]) {
+        $("#" + filtername + " > div." + filtername + "-container-selected").each(function () {
             filters.push({type: filtername, value: this.id.split("-")[1]});
         });
     }
@@ -206,7 +200,7 @@ let getNamePopulation = (isCount) => {
     }).then((body) => {
         spinner.stop();
         $("#count-number").html(body.count)
-        return(body);
+        return (body);
     }).catch((err) => {
         console.log(err);
         spinner.stop();
