@@ -200,7 +200,9 @@ let resetFilters = () => {
     getNamePopulation(true);
 }
 let reset = () => {
-    seriesChart.resetSvg();
+    if (seriesChart.hasOwnProperty("resetSvg")) {
+        seriesChart.resetSvg();
+    }
     // $("#nombre").html("");
     // $("#carte").html("");
     // $("#cloud").html("");
