@@ -16,7 +16,8 @@ let showDashboard = () => {
 
     dc.config.defaultColors(d3.schemeSet2);
 
-    seriesChart = new dc.SeriesChart("#nombre", "data")
+    seriesChart = new dc.SeriesChart("#nombre", "data");
+    seriesChart
         .height(null)
         .width(null)
         .renderTitle(false)
