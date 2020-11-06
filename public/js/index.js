@@ -4,7 +4,7 @@ let dimNames = {};
 let groupNames = {};
 let dimData = {};
 let groupData = {};
-let seriesChart = new dc.SeriesChart("#nombre", "data");
+let seriesChart;
 // ################################################
 // ############# INITIALIZATION ###################
 // ################################################
