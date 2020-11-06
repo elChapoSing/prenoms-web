@@ -156,6 +156,7 @@ router.post('/filters', (req, res) => {
             }, {concurrency: 20})
             .then((values) => {
                 console.timeEnd("promises")
+                console.log(values);
                 // we send the intersect of all (union by type)
                 let errors = values.filter((x) => x.stack);
                 if (errors.length > 0) {
