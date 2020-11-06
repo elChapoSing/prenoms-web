@@ -12,33 +12,36 @@ let formatDashboard = () => {
 };
 
 let showDashboard = () => {
-        let seriesChart = new dc.SeriesChart("#nombre", "data")
-            .height(null)
-            .width(null)
-            .renderTitle(false)
-            .dimension(dimData["annee"])
-            .group(groupData["annee"]["sum"])
-            .x(d3.scaleBand())
-            .elasticX(true)
-            .elasticY(true)
-            .brushOn(false)
-            .legend(new dc.HtmlLegend().container("#nombre-legend").horizontal(true).highlightSelected(true))
-            .seriesAccessor((d) => {
-                return d.key[0];
-            })
-            .keyAccessor((d) => {
-                return d.key[1];
-            })
-            .valueAccessor( (d) => {
-                return d.value.sum;
-            })
-            .margins({left: 70, top: 10, bottom: 30, right: 50})
-            .on("preRedraw", function (chart) {
-                chart.rescale();
-            })
-            .on("preRender", function (chart) {
-                chart.rescale();
-            });
+
+    dc.config.defaultColors(d3.schemeSet2);
+
+    let seriesChart = new dc.SeriesChart("#nombre", "data")
+        .height(null)
+        .width(null)
+        .renderTitle(false)
+        .dimension(dimData["annee"])
+        .group(groupData["annee"]["sum"])
+        .x(d3.scaleBand())
+        .elasticX(true)
+        .elasticY(true)
+        .brushOn(false)
+        .legend(new dc.HtmlLegend().container("#nombre-legend").horizontal(true).highlightSelected(true))
+        .seriesAccessor((d) => {
+            return d.key[0];
+        })
+        .keyAccessor((d) => {
+            return d.key[1];
+        })
+        .valueAccessor((d) => {
+            return d.value.sum;
+        })
+        .margins({left: 70, top: 10, bottom: 30, right: 50})
+        .on("preRedraw", function (chart) {
+            chart.rescale();
+        })
+        .on("preRender", function (chart) {
+            chart.rescale();
+        });
 
     // showMap().then((mapChart) => {
     //     dc.renderAll("data");
@@ -161,7 +164,7 @@ let go = () => {
             }).then((results) => {
                 console.timeEnd("load data");
                 console.time("parse data");
-                let parsedData = Papa.parse(results, {header: true,dynamicTyping: true});
+                let parsedData = Papa.parse(results, {header: true, dynamicTyping: true});
                 console.timeEnd("parse data");
                 console.time("initialize data");
                 initializeCrossfilter(parsedData.data);
