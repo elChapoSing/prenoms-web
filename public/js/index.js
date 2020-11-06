@@ -144,6 +144,12 @@ let showMap = () => {
 let go = () => {
     console.log("go");
     let spinner = new Spinner({}).spin(document.getElementById("spinner"));
+    let names = getNamePopulation(false);
+    $.ajax("/prenoms/crossfilter/data_pg",{
+        data: JSON.stringify(names),
+        headers: {"Content-Type": "application/json"},
+        method: "POST",
+    })
     // Promise.all([loadData("names"), loadData("data")]).then((values) => {
     //     console.log("data loaded");
     //     console.time("initialize names");
@@ -199,7 +205,8 @@ let getNamePopulation = (isCount) => {
         method: "POST",
     }).then((body) => {
         spinner.stop();
-        $("#count-number").html(body.count);
+        $("#count-number").html(body.count)
+        return(body);
     }).catch((err) => {
         console.log(err);
         spinner.stop();

@@ -216,3 +216,17 @@ router.get("/sons", (req, res) => {
         res.status(500).send(err);
     })
 })
+
+
+router.post('/crossfilter/data_pg', (req, res) => {
+    db_pg.pool.connect((err, client, done) => {
+        if (err) {
+            throw err;
+        }
+        res.set('Content-Type', 'text/csv');
+        const query = new db_pg.QueryStream('select * from public.prenoms_dep where prenom = ANY($1);',[req.body.names]);
+        const stream = client.query(query);
+        stream.on('end', done);
+        stream.pipe(CSVStream.stringify()).pipe(res);
+    });
+});
