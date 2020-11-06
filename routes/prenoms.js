@@ -196,7 +196,7 @@ router.post('/crossfilter/data_pg', (req, res) => {
             throw err;
         }
         res.set('Content-Type', 'text/csv');
-        const query = new db_pg.QueryStream('select * from public.prenoms_dep where prenom = ANY($1);',[req.body]);
+        const query = new db_pg.QueryStream('select * from public.prenoms_dep where prenom = ANY($1) and annee>1899;',[req.body]);
         const stream = client.query(query);
         stream.on('end', done);
         stream.pipe(CSVStream.stringify()).pipe(res);
