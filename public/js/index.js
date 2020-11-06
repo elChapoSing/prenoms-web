@@ -150,8 +150,11 @@ let go = () => {
                 method: "POST",
             }).then((results) => {
                 console.timeEnd("load data");
+                console.time("parse data");
+                let parsedData = Papa.parse(results);
+                console.timeEnd("parse data");
                 console.time("initialize data");
-                initializeCrossfilter(results);
+                initializeCrossfilter(parsedData.data);
                 console.timeEnd("initialize data");
                 console.time("show Dashboard");
                 showDashboard();
