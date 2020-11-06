@@ -115,7 +115,7 @@ let loadData = (mode) => {
 let showMap = () => {
     let url = "/public/geojson/departements.json";
     $.ajax(url, {}).then((departementsJson) => {
-        let mapChart = new dc.GeoChoroplethChart("#carte","data");
+        let mapChart = new dc.GeoChoroplethChart("#carte", "data");
         mapChart.dimension(dimData["departement"])
             .group(groupData["departement"]["sum"])
             .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
@@ -141,28 +141,33 @@ let showMap = () => {
 let go = () => {
     console.log("go");
     let spinner = new Spinner({}).spin(document.getElementById("spinner"));
-    let names = getNamePopulation(false);
-    console.time("load data");
-    $.ajax("/prenoms/crossfilter/data_pg", {
-        data: JSON.stringify(names.data),
-        headers: {"Content-Type": "application/json"},
-        method: "POST",
-    }).then((results) => {
-        console.timeEnd("load data");
-        console.time("initialize data");
-        initializeCrossfilter(results);
-        console.timeEnd("initialize data");
-        console.time("show Dashboard");
-        showDashboard();
-        console.timeEnd("show Dashboard");
-        console.time("format Dashboard");
-        formatDashboard();
-        console.timeEnd("format Dashboard");
-        spinner.stop();
-    }).catch((err) => {
-        console.log("blabla");
-        console.log(err);
-    });
+    getNamePopulation(false)
+        .then((names) => {
+            console.time("load data");
+            $.ajax("/prenoms/crossfilter/data_pg", {
+                data: JSON.stringify(names.data),
+                headers: {"Content-Type": "application/json"},
+                method: "POST",
+            }).then((results) => {
+                console.timeEnd("load data");
+                console.time("initialize data");
+                initializeCrossfilter(results);
+                console.timeEnd("initialize data");
+                console.time("show Dashboard");
+                showDashboard();
+                console.timeEnd("show Dashboard");
+                console.time("format Dashboard");
+                formatDashboard();
+                console.timeEnd("format Dashboard");
+                spinner.stop();
+            }).catch((err) => {
+                console.log("blabla");
+                console.log(err);
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 
 let reset = () => {
@@ -193,7 +198,7 @@ let getNamePopulation = (isCount) => {
     if (filters.length > 0) {
         filtersData.filters = filters;
     }
-    $.ajax(url, {
+    return $.ajax(url, {
         data: JSON.stringify(filtersData),
         headers: {"Content-Type": "application/json"},
         method: "POST",
@@ -205,6 +210,7 @@ let getNamePopulation = (isCount) => {
         console.log(err);
         spinner.stop();
         $("#count-number").html("Blah!");
+        return (err);
     })
 }
 
