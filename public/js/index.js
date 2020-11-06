@@ -143,7 +143,7 @@ let showMap = () => {
             .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
             .colorDomain([0, 10000])
             .colorCalculator(function (d) {
-                return d ? usChart.colors()(d) : '#ccc';
+                return d ? mapChart.colors()(d) : '#ccc';
             })
             .overlayGeoJson(departementsJson.features, "departement", function (d) {
                 return d.properties.code;
