@@ -148,6 +148,7 @@ let showMap = () => {
             })
             .projection(d3.geoMercator().center([2, 47]))
             .valueAccessor(function (d) {
+                console.log(d)
                 return d.value.sum;
             })
             .title(function (d) {
