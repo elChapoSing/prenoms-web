@@ -4,7 +4,7 @@ let dimNames = {};
 let groupNames = {};
 let dimData = {};
 let groupData = {};
-let seriesChart=  new dc.SeriesChart("#nombre", "data");
+let seriesChart = new dc.SeriesChart("#nombre", "data");
 // ################################################
 // ############# INITIALIZATION ###################
 // ################################################
@@ -16,7 +16,7 @@ let showDashboard = () => {
 
     dc.config.defaultColors(d3.schemeSet2);
 
-    seriesChart
+    seriesChart = new dc.SeriesChart("#nombre", "data")
         .height(null)
         .width(null)
         .renderTitle(false)
