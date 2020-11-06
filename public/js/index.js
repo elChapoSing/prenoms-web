@@ -27,7 +27,7 @@ let showDashboard = () => {
         .elasticX(true)
         .elasticY(true)
         .brushOn(false)
-        .legend(new dc.HtmlLegend().container("#nombre-legend").horizontal(true).highlightSelected(true))
+        // .legend(new dc.HtmlLegend().container("#nombre-legend").horizontal(true).highlightSelected(true))
         .seriesAccessor((d) => {
             return d.key[0];
         })
