@@ -12,21 +12,25 @@ let formatDashboard = () => {
 };
 
 let showDashboard = () => {
-    let seriesChart = (params) => {
-        let group = groupData["annee"]["sum"]
-        let theChart = new dc.SeriesChart("#nombre", "data")
+        let seriesChart = new dc.SeriesChart("#nombre", "data")
             .height(null)
             .width(null)
             .renderTitle(false)
             .dimension(dimData["annee"])
-            .group(group)
+            .group(groupData["annee"]["sum"])
             .x(d3.scaleBand())
             .elasticX(true)
             .elasticY(true)
             .brushOn(false)
             .legend(new dc.HtmlLegend().container("#nombre-legend").horizontal(true).highlightSelected(true))
-            .seriesAccessor((d) => d.key[0])
-            .keyAccessor((d) => d.key[1])
+            .seriesAccessor((d) => {
+                console.log(d);
+                return d.key[0];
+            })
+            .keyAccessor((d) => {
+                console.log(d);
+                return d.key[1];
+            })
             .margins({left: 70, top: 10, bottom: 30, right: 50})
             .on("preRedraw", function (chart) {
                 chart.rescale();
@@ -34,9 +38,7 @@ let showDashboard = () => {
             .on("preRender", function (chart) {
                 chart.rescale();
             });
-        return theChart;
-    };
-    seriesChart();
+
     // showMap().then((mapChart) => {
     //     dc.renderAll("data");
     // }).catch((err) => {
