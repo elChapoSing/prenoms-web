@@ -148,7 +148,7 @@ let showMap = () => {
             .overlayGeoJson(departementsJson.features, "departement", function (d) {
                 return d.properties.code;
             })
-            .projection(d3.geoMercator().center([2, 47]))
+            .projection(d3.geoMercator().center([2, 47]).scale(3))
             .valueAccessor(function (d) {
                 console.log(d)
                 return d.value.sum;
