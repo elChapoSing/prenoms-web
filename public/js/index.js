@@ -137,6 +137,8 @@ let showMap = () => {
     return $.ajax(url, {}).then((departementsJson) => {
         mapChart = new dc.GeoChoroplethChart("#carte", "data");
         mapChart.dimension(dimData["departement"])
+            .height(null)
+            .width(null)
             .group(groupData["departement"]["sum"])
             .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
             .colorDomain([0, 10000])
