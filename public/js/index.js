@@ -154,6 +154,7 @@ let showMap = () => {
 let go = () => {
     console.log("go");
     let spinner = new Spinner({}).spin(document.getElementById("spinner"));
+    reset()
     getNamePopulation(false)
         .then((names) => {
             console.time("load data");
@@ -186,7 +187,7 @@ let go = () => {
         });
 };
 
-let reset = () => {
+let resetFilters = () => {
     $("div[class$='-selected']").each((i, elmt) => {
         let theClass = elmt.className
         let newClass = theClass.replace("-selected", "");
@@ -195,6 +196,12 @@ let reset = () => {
         $("#toggle-" + elmt.id).prop("checked", false);
     })
     getNamePopulation(true);
+}
+let reset = () => {
+    $("#nombre").html("");
+    $("#carte").html("");
+    $("#cloud").html("");
+    $("#tableau").html("");
 }
 
 let getNamePopulation = (isCount) => {
@@ -267,7 +274,7 @@ $(function () {
     $("#btn-go").button()
         .click(go);
     $("#btn-reset").button()
-        .click(reset);
+        .click(resetFilters);
 
     generateSounds();
     getNamePopulation(true);
