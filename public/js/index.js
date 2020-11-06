@@ -5,6 +5,7 @@ let groupNames = {};
 let dimData = {};
 let groupData = {};
 let seriesChart;
+let mapChart;
 // ################################################
 // ############# INITIALIZATION ###################
 // ################################################
@@ -49,12 +50,13 @@ let showDashboard = () => {
             chart.rescale();
         });
 
-    // showMap().then((mapChart) => {
-    //     dc.renderAll("data");
-    // }).catch((err) => {
-    //     console.log(err);
-    // });
-    dc.renderAll("data");
+    showMap().then((mapChart) => {
+        dc.renderAll("data");
+    }).catch((err) => {
+        console.log("Something wrong with the mapchart : ");
+        console.log(err);
+        dc.renderAll("data");
+    });
 };
 
 let initializeCrossfilter = (data) => {
@@ -133,7 +135,7 @@ let loadData = (mode) => {
 let showMap = () => {
     let url = "/public/geojson/departements.json";
     return $.ajax(url, {}).then((departementsJson) => {
-        let mapChart = new dc.GeoChoroplethChart("#carte", "data");
+        mapChart = new dc.GeoChoroplethChart("#carte", "data");
         mapChart.dimension(dimData["departement"])
             .group(groupData["departement"]["sum"])
             .colors(d3.scaleQuantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
@@ -145,9 +147,8 @@ let showMap = () => {
                 return d.properties.code;
             })
             .projection(d3.geoMercator().center([2, 47]))
-            .valueAccessor(function (kv) {
-                console.log(kv);
-                return kv;
+            .valueAccessor(function (d) {
+                return d.value.sum;
             })
             .title(function (d) {
                 return "Departement: " + d.key + "\nTotal Prenoms: " + d.value;
@@ -207,8 +208,9 @@ let reset = () => {
     if (seriesChart !== undefined) {
         seriesChart.resetSvg();
     }
-    // $("#nombre").html("");
-    // $("#carte").html("");
+    if (mapChart !== undefined) {
+        mapChart.resetSvg();
+    }
     // $("#cloud").html("");
     // $("#tableau").html("");
 }
