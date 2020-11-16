@@ -6,9 +6,75 @@ let dimData = {};
 let groupData = {};
 let seriesChart;
 let mapChart;
-// ################################################
-// ############# INITIALIZATION ###################
-// ################################################
+
+JaroWrinker  = function (s1, s2) {
+    var m = 0;
+
+    // Exit early if either are empty.
+    if ( s1.length === 0 || s2.length === 0 ) {
+        return 0;
+    }
+
+    // Exit early if they're an exact match.
+    if ( s1 === s2 ) {
+        return 1;
+    }
+
+    var range     = (Math.floor(Math.max(s1.length, s2.length) / 2)) - 1,
+        s1Matches = new Array(s1.length),
+        s2Matches = new Array(s2.length);
+
+    for ( i = 0; i < s1.length; i++ ) {
+        var low  = (i >= range) ? i - range : 0,
+            high = (i + range <= s2.length) ? (i + range) : (s2.length - 1);
+
+        for ( j = low; j <= high; j++ ) {
+            if ( s1Matches[i] !== true && s2Matches[j] !== true && s1[i] === s2[j] ) {
+                ++m;
+                s1Matches[i] = s2Matches[j] = true;
+                break;
+            }
+        }
+    }
+
+    // Exit early if no matches were found.
+    if ( m === 0 ) {
+        return 0;
+    }
+
+    // Count the transpositions.
+    var k = n_trans = 0;
+
+    for ( i = 0; i < s1.length; i++ ) {
+        if ( s1Matches[i] === true ) {
+            for ( j = k; j < s2.length; j++ ) {
+                if ( s2Matches[j] === true ) {
+                    k = j + 1;
+                    break;
+                }
+            }
+
+            if ( s1[i] !== s2[j] ) {
+                ++n_trans;
+            }
+        }
+    }
+
+    var weight = (m / s1.length + m / s2.length + (m - (n_trans / 2)) / m) / 3,
+        l      = 0,
+        p      = 0.1;
+
+    if ( weight > 0.7 ) {
+        while ( s1[l] === s2[l] && l < 4 ) {
+            ++l;
+        }
+
+        weight = weight + l * p * (1 - weight);
+    }
+
+    return weight;
+}
+
 let formatDashboard = () => {
 
 };
@@ -28,7 +94,6 @@ let showDashboard = () => {
         .elasticX(true)
         .elasticY(true)
         .brushOn(false)
-        // .legend(new dc.HtmlLegend().container("#nombre-legend").horizontal(true).highlightSelected(true))
         .seriesAccessor((d) => {
             return d.key[0];
         })
@@ -39,7 +104,7 @@ let showDashboard = () => {
             return d.value.sum;
         })
         .renderTitle(true)
-        .title ((d) => {
+        .title((d) => {
             return d.key[0] + " " + d.key[1] + " : " + d.value.sum;
         })
         .margins({left: 70, top: 10, bottom: 30, right: 50})
@@ -48,8 +113,11 @@ let showDashboard = () => {
         })
         .on("preRender", function (chart) {
             chart.rescale();
+        })
+        .on("filtered",function(chart,filter) {
+            showCloud();
         });
-
+    showCloud();
     showMap().then((mapChart) => {
         dc.renderAll("data");
     }).catch((err) => {
@@ -148,16 +216,142 @@ let showMap = () => {
             .overlayGeoJson(departementsJson.features, "departement", function (d) {
                 return d.properties.code;
             })
-            .projection(d3.geoMercator().center(d3.geo.centroid(departementsJson)).scale(1000))
+            .projection(d3.geoMercator().center(d3.geoCentroid(departementsJson)).scale(2000))
             .valueAccessor(function (d) {
-                console.log(d)
                 return d.value.sum;
             })
             .title(function (d) {
                 return "Departement: " + d.key + "\nTotal Prenoms: " + d.value;
+            })
+            .on("filtered",function(chart,filter) {
+                showCloud();
             });
         return mapChart;
     });
+
+}
+
+let showCloud = () => {
+
+    console.log("show cloud");
+    let names = groupData["prenom"]["sum"].top(Infinity).map(x => x.key);
+    let data = {nodes:[],links:[]};
+    names.forEach((x) => {
+        data.nodes.push({"id":x,group:1});
+    })
+
+    let test = (x,arr) => {
+        return arr.map((y) => [x,y]);
+    }
+    let combo = names.reduce((acc,currVal,currIdx,src) => {
+       return acc.concat(test(currVal,src.slice(currIdx+1)));
+    },[]).forEach((x) => {
+        console.log(x[0]+" to "+ x[1]);
+        console.log(10*JaroWrinker(x[0],x[1]));
+        data.links.push({
+            source: x[0],
+            target: x[1],
+            value: 10-10*JaroWrinker(x[0],x[1]),
+        })
+    })
+
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    };
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    };
+
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    };
+
+    var svg = d3.select("#cloud-svg"),
+        // width = +svg.attr("width"),
+        // height = +svg.attr("height");
+        width = document.getElementById("cloud").offsetWidth,
+        height = document.getElementById("cloud").offsetHeight;
+
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function (d) {
+            return d.id;
+        }))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+
+    var link = svg.append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(data.links)
+        .enter().append("line")
+        .attr("stroke-width", function (d) {
+            return Math.sqrt(d.value);
+        });
+
+    var node = svg.append("g")
+        .attr("class", "nodes")
+        .selectAll("g")
+        .data(data.nodes)
+        .enter().append("g")
+
+    var circles = node.append("circle")
+        .attr("r", 5)
+        .attr("fill", function (d) {
+            return color(d.group);
+        })
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    // var labels = node.append("text")
+    //     .text(function (d) {
+    //         return d.id;
+    //     })
+    //     .attr('x', 6)
+    //     .attr('y', 3);
+
+    node.append("title")
+        .text(function (d) {
+            return d.id;
+        });
+
+    simulation
+        .nodes(data.nodes)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(data.links);
+
+    function ticked() {
+        link
+            .attr("x1", function (d) {
+                return d.source.x;
+            })
+            .attr("y1", function (d) {
+                return d.source.y;
+            })
+            .attr("x2", function (d) {
+                return d.target.x;
+            })
+            .attr("y2", function (d) {
+                return d.target.y;
+            });
+
+        node
+            .attr("transform", function (d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            })
+    }
 
 }
 
@@ -274,7 +468,6 @@ let toggleGeneric = (checkbox) => {
 let generateSounds = () => {
     $("#sound").html("");
     $.ajax("/prenoms/sons").then((arrSons) => {
-        console.log(arrSons);
         for (let son of arrSons) {
             $("#sound").append('<div id="sound-|' + son + '|" class="sound-container"><label for="toggle-sound-|' + son + '|">' + son + '</label></div>')
             $("#checkboxes").append('<input type="checkbox" id="toggle-sound-|' + son + '|" onclick="toggleGeneric(this)">');
@@ -292,4 +485,5 @@ $(function () {
 
     generateSounds();
     getNamePopulation(true);
+    // showCloud();
 });

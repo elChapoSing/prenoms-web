@@ -1,0 +1,3 @@
+[submodule "python/prenoms"]
+	path = python/prenoms
+	url = git@github.com:elChapoSing/prenoms.git
